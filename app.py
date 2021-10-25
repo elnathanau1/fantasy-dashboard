@@ -9,9 +9,9 @@ from resources.espn_fantasy_service import get_power_rankings
 from resources.secrets import local_espn_s2, local_swid, local_league_id
 from espn_api.basketball import League
 
-espn_s2 = os.environ['ESPN_S2'] if os.environ['ESPN_S2'] is not None else local_espn_s2
-swid = os.environ['SWID'] if os.environ['SWID'] is not None else local_swid
-league_id = os.environ['LEAGUE_ID'] if os.environ['LEAGUE_ID'] is not None else local_league_id
+espn_s2 = os.environ['ESPN_S2'] if os.getenv("ESPN_S2") else local_espn_s2
+swid = os.environ['SWID'] if os.getenv("SWID") is not None else local_swid
+league_id = os.environ['LEAGUE_ID'] if os.getenv("LEAGUE_ID") is not None else local_league_id
 league = League(league_id, 2022, espn_s2, swid)
 
 power_rankings = get_power_rankings(league, 1)
@@ -23,10 +23,14 @@ app.layout = html.Div(
     children=[
         html.H1(children=league.settings.name),
         html.P(
-            children="Power rankings for Matchup #{0}".format(1),
+            children="Power rankings for Week #{0}".format(1),
         ),
         html.Ol(
             power_rankings_html_list
+        ),
+        html.P(
+            children="Team records are calculated by using teams' stats for the week and playing against every " +
+                     "other team. Record is then created by aggregating the total win/lose/tie counts."
         )
     ]
 )
