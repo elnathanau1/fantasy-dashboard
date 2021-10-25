@@ -1,4 +1,4 @@
-#resources/secrets.py
+resources/secrets.py
 venv/
 .idea/
 .DS_Store
