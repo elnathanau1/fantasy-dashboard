@@ -1,3 +1,5 @@
 resources/secrets.py
 venv/
 .idea/
+.DS_Store
+*.pyc
