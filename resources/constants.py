@@ -1,0 +1,4 @@
+GREEN = '#3D9970'
+RED = '#FF4136'
+GRAY = '#808080'
+CATEGORIES = ['TO', 'PTS', 'BLK', 'STL', 'AST', 'REB', '3PTM', 'FG%', 'FT%']

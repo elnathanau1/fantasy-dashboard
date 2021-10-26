@@ -1,6 +1,5 @@
 from espn_api.basketball import League, Team, Matchup
 
-
 CATEGORIES = ['TO', 'PTS', 'BLK', 'STL', 'AST', 'REB', '3PTM', 'FG%', 'FT%']
 
 
@@ -30,9 +29,9 @@ def compare_team_stats(team_1, team_2):
         'away_team': team_2[0]
     }
 
-    win = 0
-    lose = 0
-    tie = 0
+    win = []
+    lose = []
+    tie = []
 
     for category in CATEGORIES:
         multiplier = 1
@@ -40,21 +39,27 @@ def compare_team_stats(team_1, team_2):
             multiplier = -1
 
         if team_1[1][category] * multiplier > team_2[1][category] * multiplier:
-            win += 1
+            win.append(category)
         elif team_1[1][category] * multiplier < team_2[1][category] * multiplier:
-            lose += 1
+            lose.append(category)
         else:
-            tie += 1
+            tie.append(category)
 
-    return_dict['win'] = win
-    return_dict['lose'] = lose
-    return_dict['tie'] = tie
+    return_dict.update({
+        'win_cats': win,
+        'lose_cats': lose,
+        'tie_cats': tie,
+        'wins': len(win),
+        'losses': len(lose),
+        'ties': len(tie)
+    })
 
     return return_dict
 
 
 def get_power_rankings(league: League, matchup_period):
-    team_stats_list = list(map(lambda team: [team.team_name, get_matchup_cats(league, 1, team.team_id)], league.teams))
+    team_stats_list = list(
+        map(lambda team: [team.team_name, get_matchup_cats(league, matchup_period, team.team_id)], league.teams))
 
     results_list = []
     for i in range(0, len(team_stats_list)):
@@ -70,13 +75,13 @@ def get_power_rankings(league: League, matchup_period):
         for j in range(0, len(team_stats_list)):
             if j != i:
                 result = compare_team_stats(team_stats_list[i], team_stats_list[j])
-                total_win += result['win']
-                total_lose += result['lose']
-                total_tie += result['tie']
+                total_win += result['wins']
+                total_lose += result['losses']
+                total_tie += result['ties']
                 matchups.append(result)
-                if result['win'] > result['lose']:
+                if result['wins'] > result['losses']:
                     matchup_win += 1
-                elif result['win'] == result['lose']:
+                elif result['wins'] == result['losses']:
                     matchup_tie += 1
                 else:
                     matchup_lose += 1
