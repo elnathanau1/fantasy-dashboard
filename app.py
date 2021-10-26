@@ -39,7 +39,7 @@ server = app.server
 
 @app.callback(Output(WEEK_OUTPUT_CONTAINER, 'children'),
               Input(WEEK_DROPDOWN_ID, 'value'))
-def render_chart_tab_content(week):
+def render_week_output_container(week):
     power_rankings = get_power_rankings(league, int(week))
     power_rankings_html_list = list(
         map(
