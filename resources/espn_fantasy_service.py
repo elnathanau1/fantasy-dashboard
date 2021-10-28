@@ -152,7 +152,7 @@ def get_player_info(player_id: int):
 
 
 def get_player_headshot(player_id: int):
-    return 'https://a.espncdn.com/combiner/i?img=%2Fi%2Fheadshots%2Fnba%2Fplayers%2Ffull%2F{0}.png&w=96&h=70&cb=1'.format(
+    return 'https://a.espncdn.com/combiner/i?img=%2Fi%2Fheadshots%2Fnba%2Fplayers%2Ffull%2F{0}.png&w=72&cb=1'.format(
         player_id)
 
 

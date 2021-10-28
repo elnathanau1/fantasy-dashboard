@@ -6,6 +6,7 @@ from resources.espn_fantasy_service import get_week_matchup_stats, get_trade_blo
 from resources.matchup_table import generate_matchup_table
 from resources.weekly_stats_table import generate_weekly_stats_table
 from resources.trade_block import generate_trade_block_chart
+from resources.weekly_power_ranking_chart import generate_weekly_power_ranking_chart
 from resources.constants import *
 
 league = get_league_obj()
@@ -16,9 +17,10 @@ app.layout = html.Div([
         options=[
             {'label': 'League Home', 'value': '0'},
             {'label': 'Week 1: 10/19-10/24', 'value': '1'},
-            {'label': 'Week 2: 10/25-10/31', 'value': '2'}
+            {'label': 'Week 2: 10/25-10/31', 'value': '2'},
+            {'label': 'Week 2: 11/01-11/07', 'value': '3'}
         ],
-        value=str(league.currentMatchupPeriod - 1)
+        value=str(league.currentMatchupPeriod)
     ),
     html.Div(id=WEEK_OUTPUT_CONTAINER)
     ])
@@ -32,12 +34,19 @@ def render_week_output_container(week):
     if week == '0':
         return [
             html.H1(children=league.settings.name),
-            html.Aside(
+            html.Div(
+                children=[
+                    html.H3('Team Week to Week Power Ranking'),
+                    generate_weekly_power_ranking_chart()
+                ],
+                style={'width': '70vw'}
+            ),
+            html.Div(
                 children=[
                     html.H3('Trade Block', style={'textAlign': 'center'}),
                     generate_trade_block_chart(get_trade_block())
                 ],
-                style={'width': '30vh', 'height': '100vh'}
+                style={'width': '30vw', 'height': '100vh'}
             )
 
         ]
