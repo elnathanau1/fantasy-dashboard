@@ -1,5 +1,13 @@
 from espn_api.basketball import League, Team, Matchup
 import requests
+import os
+from cachetools import TTLCache
+
+from resources.secrets import *
+
+espn_s2 = os.environ['ESPN_S2'] if os.getenv("ESPN_S2") else local_espn_s2
+swid = os.environ['SWID'] if os.getenv("SWID") is not None else local_swid
+league_id = os.environ['LEAGUE_ID'] if os.getenv("LEAGUE_ID") is not None else local_league_id
 
 CATEGORIES = ['TO', 'PTS', 'BLK', 'STL', 'AST', 'REB', '3PTM', 'FG%', 'FT%']
 
@@ -9,23 +17,36 @@ r = requests.get(
 )
 player_map = r.json()
 
-
-def get_league_info(league_id: str, season: int, swid: str, espn_s2: str):
-    url = 'https://fantasy.espn.com/apis/v3/games/fba/seasons/{0}/segments/0/leagues/{1}?view=mRoster&view=mTeam'.format(
-        season, league_id)
-    req = requests.get(
-        url,
-        headers={'cookie': 'espnAuth={{"swid":"{0}"}}; espn_s2={1};'.format(swid, espn_s2)}
-    )
-    return req.json()
+cache = TTLCache(maxsize=10, ttl=360)
+LEAGUE_OBJ_KEY = 'league_obj_key'
+LEAGUE_INFO_KEY = 'league_info_key'
 
 
-def get_team(league: League, team_id: int) -> Team:
+def get_league_obj():
+    if LEAGUE_OBJ_KEY not in cache.keys():
+        cache[LEAGUE_OBJ_KEY] = League(league_id, 2022, espn_s2, swid)
+    return cache[LEAGUE_OBJ_KEY]
+
+
+def get_league_info():
+    if LEAGUE_INFO_KEY not in cache.keys():
+        url = 'https://fantasy.espn.com/apis/v3/games/fba/seasons/{0}/segments/0/leagues/{1}?view=mRoster&view=mTeam'.format(
+            2022, league_id)
+        req = requests.get(
+            url,
+            headers={'cookie': 'espnAuth={{"swid":"{0}"}}; espn_s2={1};'.format(swid, espn_s2)}
+        )
+        cache[LEAGUE_INFO_KEY] = req.json()
+    return cache[LEAGUE_INFO_KEY]
+
+
+def get_team(team_id: int) -> Team:
+    league = get_league_obj()
     return [team for team in league.teams if team.team_id == team_id][0]
 
 
-def get_matchup_cats(league: League, matchup_period: int, team_id: int):
-    team = get_team(league, team_id)
+def get_matchup_cats(matchup_period: int, team_id: int):
+    team = get_team(team_id)
 
     current_matchup: Matchup = team.schedule[matchup_period - 1]
     if current_matchup.home_team.team_id == team_id:
@@ -74,9 +95,14 @@ def compare_team_stats(team_1, team_2):
     return return_dict
 
 
-def get_power_rankings(league: League, matchup_period):
+def get_week_matchup_stats(matchup_period: int):
+    if matchup_period == 0:
+        return []
+
+    league = get_league_obj()
+
     team_stats_list = list(
-        map(lambda team: [team.team_name, get_matchup_cats(league, matchup_period, team.team_id)], league.teams))
+        map(lambda team: [team.team_name, get_matchup_cats(matchup_period, team.team_id)], league.teams))
 
     results_list = []
     for i in range(0, len(team_stats_list)):
@@ -130,7 +156,8 @@ def get_player_headshot(player_id: int):
         player_id)
 
 
-def get_trade_block(league_info):
+def get_trade_block():
+    league_info = get_league_info()
     trade_block = []
     for team in league_info['teams']:
         if 'players' in team['tradeBlock'].keys():
@@ -139,5 +166,5 @@ def get_trade_block(league_info):
                     trade_block.append({
                         'player_id': player_id,
                         'team_id': team['location'] + ' ' + team['nickname']
-                        })
+                    })
     return trade_block

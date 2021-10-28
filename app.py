@@ -1,24 +1,14 @@
-import os
-
 import dash
 from dash import html
 from dash import dcc
 from dash.dependencies import Input, Output
-from resources.espn_fantasy_service import get_power_rankings, get_league_info, get_trade_block
-from resources.secrets import local_espn_s2, local_swid, local_league_id
+from resources.espn_fantasy_service import get_week_matchup_stats, get_trade_block, get_league_obj
 from resources.matchup_table import generate_matchup_table
 from resources.weekly_stats_table import generate_weekly_stats_table
 from resources.trade_block import generate_trade_block_chart
-from espn_api.basketball import League
 from resources.constants import *
 
-
-espn_s2 = os.environ['ESPN_S2'] if os.getenv("ESPN_S2") else local_espn_s2
-swid = os.environ['SWID'] if os.getenv("SWID") is not None else local_swid
-league_id = os.environ['LEAGUE_ID'] if os.getenv("LEAGUE_ID") is not None else local_league_id
-league = League(league_id, 2022, espn_s2, swid)
-league_info = get_league_info(league_id, 2022, swid, espn_s2)
-
+league = get_league_obj()
 app = dash.Dash(__name__, suppress_callback_exceptions=True)
 app.layout = html.Div([
     dcc.Dropdown(
@@ -38,30 +28,31 @@ server = app.server
 @app.callback(Output(WEEK_OUTPUT_CONTAINER, 'children'),
               Input(WEEK_DROPDOWN_ID, 'value'))
 def render_week_output_container(week):
+    league = get_league_obj()
     if week == '0':
         return [
             html.H1(children=league.settings.name),
             html.Aside(
                 children=[
                     html.H3('Trade Block', style={'textAlign': 'center'}),
-                    generate_trade_block_chart(get_trade_block(league_info))
+                    generate_trade_block_chart(get_trade_block())
                 ],
                 style={'width': '30vh', 'height': '100vh'}
             )
 
         ]
     else:
-        power_rankings = get_power_rankings(league, int(week))
-        power_rankings_html_list = list(
+        week_matchup_stats = get_week_matchup_stats(int(week))
+        week_matchup_stats_html_list = list(
             map(
                 lambda team: html.Li("{0}: {1}".format(team['team'], team['total_record'])),
-                power_rankings
+                week_matchup_stats
             )
         )
         return [
                 html.H1(children=league.settings.name),
                 html.P(children="Power rankings for Week #{0}".format(week)),
-                html.Ol(power_rankings_html_list),
+                html.Ol(week_matchup_stats_html_list),
                 html.P(
                     children="Team records are calculated by using teams' stats for the week and playing against every " +
                              "other team. Record is then created by aggregating the total win/loss/tie counts."
@@ -78,7 +69,7 @@ def render_week_output_container(week):
               Input(CHART_TABS_ID, 'value'),
               Input(WEEK_DROPDOWN_ID, 'value'))
 def render_chart_tab_content(tab, week):
-    power_rankings = get_power_rankings(league, int(week))
+    power_rankings = get_week_matchup_stats(int(week))
     if tab == MATCHUP_CHART_TAB:
         return generate_matchup_table(power_rankings)
     elif tab == WEEKLY_STATS_TABLE_TAB:
