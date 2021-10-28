@@ -10,4 +10,4 @@ CHART_TABS_ID = 'chart_tabs'
 CHART_TABS_CONTENT = 'chart_tabs_content'
 MATCHUP_CHART_TAB = 'matchup_chart_tab'
 WEEKLY_STATS_TABLE_TAB = 'weekly_stats_table_tab'
-
+WEEKLY_STATS_RANK_TAB = 'weekly_stats_rank_tab'

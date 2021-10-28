@@ -5,6 +5,7 @@ from dash.dependencies import Input, Output
 from resources.espn_fantasy_service import get_week_matchup_stats, get_trade_block, get_league_obj
 from resources.matchup_table import generate_matchup_table
 from resources.weekly_stats_table import generate_weekly_stats_table
+from resources.weekly_stats_rank_table import generate_weekly_stats_rank_table
 from resources.trade_block import generate_trade_block_chart
 from resources.weekly_power_ranking_chart import generate_weekly_power_ranking_chart
 from resources.constants import *
@@ -69,6 +70,7 @@ def render_week_output_container(week):
                 dcc.Tabs(id=CHART_TABS_ID, value=MATCHUP_CHART_TAB, children=[
                     dcc.Tab(label='Matchup Chart', value=MATCHUP_CHART_TAB),
                     dcc.Tab(label='Weekly Stats', value=WEEKLY_STATS_TABLE_TAB),
+                    dcc.Tab(label='Weekly Ranks', value=WEEKLY_STATS_RANK_TAB)
                 ]),
                 html.Div(id=CHART_TABS_CONTENT)
             ]
@@ -83,6 +85,8 @@ def render_chart_tab_content(tab, week):
         return generate_matchup_table(power_rankings)
     elif tab == WEEKLY_STATS_TABLE_TAB:
         return generate_weekly_stats_table(power_rankings)
+    elif tab == WEEKLY_STATS_RANK_TAB:
+        return generate_weekly_stats_rank_table(power_rankings)
 
 
 if __name__ == '__main__':
