@@ -1,6 +1,23 @@
 from espn_api.basketball import League, Team, Matchup
+import requests
 
 CATEGORIES = ['TO', 'PTS', 'BLK', 'STL', 'AST', 'REB', '3PTM', 'FG%', 'FT%']
+
+r = requests.get(
+    url='https://fantasy.espn.com/apis/v3/games/fba/seasons/2022/players?scoringPeriodId=0&view=players_wl',
+    headers={'x-fantasy-filter': '{"filterActive":{"value":true}}'}
+)
+player_map = r.json()
+
+
+def get_league_info(league_id: str, season: int, swid: str, espn_s2: str):
+    url = 'https://fantasy.espn.com/apis/v3/games/fba/seasons/{0}/segments/0/leagues/{1}?view=mRoster&view=mTeam'.format(
+        season, league_id)
+    req = requests.get(
+        url,
+        headers={'cookie': 'espnAuth={{"swid":"{0}"}}; espn_s2={1};'.format(swid, espn_s2)}
+    )
+    return req.json()
 
 
 def get_team(league: League, team_id: int) -> Team:
@@ -98,3 +115,29 @@ def get_power_rankings(league: League, matchup_period):
         )
 
     return sorted(results_list, key=lambda x: x['score'] * -1)
+
+
+def get_player_info(player_id: int):
+    for player in player_map:
+        if str(player['id']) == str(player_id):
+            return player
+
+    return None
+
+
+def get_player_headshot(player_id: int):
+    return 'https://a.espncdn.com/combiner/i?img=%2Fi%2Fheadshots%2Fnba%2Fplayers%2Ffull%2F{0}.png&w=96&h=70&cb=1'.format(
+        player_id)
+
+
+def get_trade_block(league_info):
+    trade_block = []
+    for team in league_info['teams']:
+        if 'players' in team['tradeBlock'].keys():
+            for player_id in team['tradeBlock']['players'].keys():
+                if team['tradeBlock']['players'][player_id] == 'ON_THE_BLOCK':
+                    trade_block.append({
+                        'player_id': player_id,
+                        'team_id': team['location'] + ' ' + team['nickname']
+                        })
+    return trade_block
