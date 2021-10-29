@@ -17,7 +17,7 @@ PLAYER_MAP_URL = 'https://fantasy.espn.com/apis/v3/games/fba/seasons/2022/player
 LEAGUE_INFO_URL = 'https://fantasy.espn.com/apis/v3/games/fba/seasons/{0}/segments/0/leagues/{1}?view=mRoster&view=mTeam'
 BASKETBALLMONSTER_RANKINGS = "https://basketballmonster.com/playerrankings.aspx"
 
-cache = TTLCache(maxsize=10, ttl=30*60)
+cache = TTLCache(maxsize=10, ttl=60*60)
 LEAGUE_OBJ_KEY = 'league_obj_key'
 LEAGUE_INFO_KEY = 'league_info_key'
 PLAYER_MAP_KEY = 'player_map_key'

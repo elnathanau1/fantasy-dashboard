@@ -16,7 +16,11 @@ def generate_team_profile_page():
             }, range(1, len(league_obj.teams)))),
             value='1'
         ),
-        html.Div(id=TEAM_PAGE_CONTAINER)
+        dcc.Loading(
+            id="loading-1",
+            type="default",
+            children=html.Div(id=TEAM_PAGE_CONTAINER)
+        )
     ])
 
 
