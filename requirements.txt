@@ -4,6 +4,7 @@ cachetools==4.2.4
 certifi==2021.10.8
 charset-normalizer==2.0.7
 click==8.0.3
+colour==0.1.5
 dash==2.0.0
 dash-core-components==2.0.0
 dash-html-components==2.0.0
