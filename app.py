@@ -1,92 +1,40 @@
-import dash
-from dash import html
+from main_dash import app
 from dash import dcc
+from dash import html
 from dash.dependencies import Input, Output
-from resources.espn_fantasy_service import get_week_matchup_stats, get_trade_block, get_league_obj
-from resources.matchup_table import generate_matchup_table
-from resources.weekly_stats_table import generate_weekly_stats_table
-from resources.weekly_stats_rank_table import generate_weekly_stats_rank_table
-from resources.trade_block import generate_trade_block_chart
-from resources.weekly_power_ranking_chart import generate_weekly_power_ranking_chart
+
+from resources.espn_fantasy_service import get_league_obj
+from resources.pages.team_profile_page import generate_team_profile_page
+from resources.pages.week_page import generate_week_page
+from resources.pages.league_home_page import generate_league_home_page
 from resources.constants import *
 
+
 league = get_league_obj()
-app = dash.Dash(__name__, suppress_callback_exceptions=True)
 app.layout = html.Div([
     dcc.Dropdown(
-        id=WEEK_DROPDOWN_ID,
+        id=MAIN_NAV_DROPDOWN,
         options=[
-            {'label': 'League Home', 'value': '0'},
-            {'label': 'Week 1: 10/19-10/24', 'value': '1'},
-            {'label': 'Week 2: 10/25-10/31', 'value': '2'},
-            {'label': 'Week 2: 11/01-11/07', 'value': '3'}
+            {'label': 'League Home', 'value': 'League Home'},
+            {'label': 'Team Pages', 'value': 'Team Pages'},
+            {'label': 'Week Summaries', 'value': 'Week Summaries'}
         ],
-        value=str(league.currentMatchupPeriod)
+        value='League Home'
     ),
-    html.Div(id=WEEK_OUTPUT_CONTAINER)
+    html.Div(id=MAIN_NAV_OUTPUT_CONTAINER)
     ])
 server = app.server
 
 
-@app.callback(Output(WEEK_OUTPUT_CONTAINER, 'children'),
-              Input(WEEK_DROPDOWN_ID, 'value'))
-def render_week_output_container(week):
-    league = get_league_obj()
-    if week == '0':
-        return [
-            html.H1(children=league.settings.name),
-            html.Div(
-                children=[
-                    html.H3('Team Week to Week Power Ranking'),
-                    generate_weekly_power_ranking_chart()
-                ],
-                style={'width': '70vw'}
-            ),
-            html.Div(
-                children=[
-                    html.H3('Trade Block', style={'textAlign': 'center'}),
-                    generate_trade_block_chart(get_trade_block())
-                ],
-                style={'width': '30vw', 'height': '100vh'}
-            )
-
-        ]
-    else:
-        week_matchup_stats = get_week_matchup_stats(int(week))
-        week_matchup_stats_html_list = list(
-            map(
-                lambda team: html.Li("{0}: {1}".format(team['team'], team['total_record'])),
-                week_matchup_stats
-            )
-        )
-        return [
-                html.H1(children=league.settings.name),
-                html.P(children="Power rankings for Week #{0}".format(week)),
-                html.Ol(week_matchup_stats_html_list),
-                html.P(
-                    children="Team records are calculated by using teams' stats for the week and playing against every " +
-                             "other team. Record is then created by aggregating the total win/loss/tie counts."
-                ),
-                dcc.Tabs(id=CHART_TABS_ID, value=MATCHUP_CHART_TAB, children=[
-                    dcc.Tab(label='Matchup Chart', value=MATCHUP_CHART_TAB),
-                    dcc.Tab(label='Weekly Stats', value=WEEKLY_STATS_TABLE_TAB),
-                    dcc.Tab(label='Weekly Ranks', value=WEEKLY_STATS_RANK_TAB)
-                ]),
-                html.Div(id=CHART_TABS_CONTENT)
-            ]
-
-
-@app.callback(Output(CHART_TABS_CONTENT, 'children'),
-              Input(CHART_TABS_ID, 'value'),
-              Input(WEEK_DROPDOWN_ID, 'value'))
-def render_chart_tab_content(tab, week):
-    power_rankings = get_week_matchup_stats(int(week))
-    if tab == MATCHUP_CHART_TAB:
-        return generate_matchup_table(power_rankings)
-    elif tab == WEEKLY_STATS_TABLE_TAB:
-        return generate_weekly_stats_table(power_rankings)
-    elif tab == WEEKLY_STATS_RANK_TAB:
-        return generate_weekly_stats_rank_table(power_rankings)
+@app.callback(Output(MAIN_NAV_OUTPUT_CONTAINER, 'children'),
+              Input(MAIN_NAV_DROPDOWN, 'value'))
+def render_week_output_container(page):
+    if page == 'League Home':
+        return [generate_league_home_page()]
+    elif page == 'Team Pages':
+        return [generate_team_profile_page()]
+    elif page == 'Week Summaries':
+        return [generate_week_page()]
 
 
 if __name__ == '__main__':
