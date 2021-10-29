@@ -13,7 +13,10 @@ def generate_team_profile_page():
             options=list(map(lambda team_id: {
                 'label': get_team(team_id).team_name,
                 'value': str(team_id)
-            }, range(1, len(league_obj.teams)))),
+            }, range(1, len(league_obj.teams)))) + [{
+                'label': 'Free Agents',
+                'value': 'FREE AGENT'
+            }],
             value='1'
         ),
         dcc.Loading(
@@ -27,9 +30,14 @@ def generate_team_profile_page():
 @app.callback(Output(TEAM_PAGE_CONTAINER, 'children'),
               Input(TEAM_SELECTION_DROPDOWN_ID, 'value'))
 def render_team_page_container(team_id):
-    team_name = get_team(int(team_id)).team_name
-    stats_df = get_player_stats()
-    team_stats_df = stats_df[stats_df['Fantasy Team'] == team_name]
+    if team_id == 'FREE AGENT':
+        team_name = 'Free Agents'
+        stats_df = get_player_stats()
+        team_stats_df = stats_df[stats_df['Fantasy Team'] == 'FREE AGENT'].head(FREE_AGENT_TABLE_SIZE)
+    else:
+        team_name = get_team(int(team_id)).team_name
+        stats_df = get_player_stats()
+        team_stats_df = stats_df[stats_df['Fantasy Team'] == team_name]
 
     columns = list(stats_df.columns)
     columns.remove('espn_id')

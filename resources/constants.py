@@ -23,3 +23,5 @@ TEAM_PAGE_CONTAINER = 'team_page_container'
 
 WEEKLY_POWER_RANKING_CHART = 'weekly_power_ranking_chart'
 LEAGUE_HOME_PAGE_ID = 'league_home_page_id'
+
+FREE_AGENT_TABLE_SIZE = 20
