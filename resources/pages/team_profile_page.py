@@ -71,7 +71,9 @@ def render_team_page_container(team_id):
 
 def get_color(zscore):
     zscore = float(zscore)
-    score = (5.0 - abs(zscore))/5.0
+    score = abs(3.0 - abs(zscore))/3.0
+    if score > 1.0:
+        score = 1.0
     if zscore > 0.0:
         return Color(rgb=(score, 1, score)).get_hex_l()
     else:
