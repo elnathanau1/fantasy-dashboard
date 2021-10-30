@@ -3,8 +3,7 @@ from resources.espn_fantasy_service import get_league_obj, get_team, get_player_
 from dash import html, dcc, dash_table
 from dash.dependencies import Input, Output
 from resources.constants import *
-from colour import Color
-
+from resources.util import get_color
 
 def generate_team_profile_page():
     league_obj = get_league_obj()
@@ -52,12 +51,13 @@ def render_team_page_container(team_id):
                     'filter_query': '{{{0}}} = {1}'.format(cat, row[cat]),
                     'column_id': cat
                 },
-                'backgroundColor': get_color(row[cat])
+                'backgroundColor': get_color(row[cat], 3.0, -3.0)
             }
             , ['Value', 'pV', '3V', 'rV', 'aV', 'sV', 'bV', 'fg%V', 'ft%V', 'toV']
         ))
         for new_style in new_styles:
             style.append(new_style)
+
     return [
         html.H1(children=team_name),
         dash_table.DataTable(
@@ -68,13 +68,3 @@ def render_team_page_container(team_id):
         )
     ]
 
-
-def get_color(zscore):
-    zscore = float(zscore)
-    score = abs(3.0 - abs(zscore))/3.0
-    if score > 1.0:
-        score = 1.0
-    if zscore > 0.0:
-        return Color(rgb=(score, 1, score)).get_hex_l()
-    else:
-        return Color(rgb=(1, score, score)).get_hex_l()
