@@ -25,7 +25,7 @@ def generate_week_page():
 
 
 @app.callback(Output(WEEK_OUTPUT_CONTAINER, 'children'),
-          Input(WEEK_DROPDOWN_ID, 'value'))
+              Input(WEEK_DROPDOWN_ID, 'value'))
 def render_week_output_container(week):
     league = get_league_obj()
     week_matchup_stats = get_week_matchup_stats(int(week))
@@ -53,12 +53,15 @@ def render_week_output_container(week):
 
 
 @app.callback(Output(CHART_TABS_CONTENT, 'children'),
-                   Input(CHART_TABS_ID, 'value'),
-                   Input(WEEK_DROPDOWN_ID, 'value'))
+              Input(CHART_TABS_ID, 'value'),
+              Input(WEEK_DROPDOWN_ID, 'value'))
 def render_chart_tab_content(tab, week):
     power_rankings = get_week_matchup_stats(int(week))
     if tab == MATCHUP_CHART_TAB:
-        return generate_matchup_table(power_rankings)
+        return [
+            generate_matchup_table(power_rankings),
+            html.Div(id=TEAM_WEEK_COMPARISON_TABLE)
+        ]
     elif tab == WEEKLY_STATS_TABLE_TAB:
         return generate_weekly_stats_table(power_rankings)
     elif tab == WEEKLY_STATS_RANK_TAB:
