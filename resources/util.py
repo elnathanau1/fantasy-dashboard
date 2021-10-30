@@ -8,7 +8,9 @@ def get_color(val, max_val, min_val):
         return Color(rgb=(1, 1, 1)).get_hex_l()
 
     score = abs((max_val - avg) - abs(val - avg)) / (max_val - avg)
-    if score > 1.0:
+    if val > max_val or val < min_val:
+        score = 0.0
+    elif score > 1.0:
         score = 1.0
 
     if val > avg:
