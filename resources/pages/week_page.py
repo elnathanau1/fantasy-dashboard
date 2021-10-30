@@ -59,6 +59,7 @@ def render_chart_tab_content(tab, week):
     power_rankings = get_week_matchup_stats(int(week))
     if tab == MATCHUP_CHART_TAB:
         return [
+            html.P('Select a cell to view matchup details'),
             generate_matchup_table(power_rankings),
             html.Div(id=TEAM_WEEK_COMPARISON_TABLE)
         ]

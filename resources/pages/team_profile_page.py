@@ -23,7 +23,8 @@ def generate_team_profile_page():
             id="loading-1",
             type="default",
             children=html.Div(id=TEAM_PAGE_CONTAINER)
-        )
+        ),
+        html.P('Data from basketballmonster.com')
     ])
 
 
