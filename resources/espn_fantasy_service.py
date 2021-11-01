@@ -260,6 +260,7 @@ def get_trade_block():
                 if team['tradeBlock']['players'][player_id] == 'ON_THE_BLOCK':
                     trade_block.append({
                         'player_id': player_id,
-                        'team_id': team['location'] + ' ' + team['nickname']
+                        'team_id': team['id'],
+                        'team_name': team['location'] + ' ' + team['nickname']
                     })
     return trade_block
