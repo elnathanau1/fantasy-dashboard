@@ -14,7 +14,7 @@ def generate_team_profile_page():
             options=list(map(lambda team_id: {
                 'label': get_team(team_id).team_name,
                 'value': str(team_id)
-            }, range(1, len(league_obj.teams)))) + [{
+            }, range(1, len(league_obj.teams) + 1))) + [{
                 'label': 'Free Agents',
                 'value': 'FREE AGENT'
             }],
@@ -43,7 +43,6 @@ def render_team_page_container(team_id):
         new_row = {
             'Name': 'Avg/Total Values'
         }
-        print(new_row)
         # cats to sum
         for cat in ['Value', 'pV', '3V', 'rV', 'aV', 'sV', 'bV', 'fg%V', 'ft%V', 'toV']:
             new_row[cat] = round(team_stats_df.loc[:, cat].astype(float).sum(), 2)
