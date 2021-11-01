@@ -27,6 +27,7 @@ def generate_league_home_page():
                 children=[
                     html.H3('Trade Block', style={'textAlign': 'center'}),
                     generate_trade_block_chart(get_trade_block())
+
                 ],
                 style={'width': '30vw', 'height': '100vh'}
             )
