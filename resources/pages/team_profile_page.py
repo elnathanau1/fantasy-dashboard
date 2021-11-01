@@ -3,7 +3,7 @@ from resources.espn_fantasy_service import get_league_obj, get_team
 from dash import html, dcc
 from dash.dependencies import Input, Output
 from resources.constants import *
-from resources.charts.player_stats_table import generate_player_stats_table
+from resources.modules.player_stats_table import generate_player_stats_table
 
 
 def generate_team_profile_page():

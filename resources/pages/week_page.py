@@ -3,9 +3,9 @@ from resources.espn_fantasy_service import get_league_obj, get_week_matchup_stat
 from dash import html, dcc
 from dash.dependencies import Input, Output
 from resources.constants import *
-from resources.charts.matchup_table import generate_matchup_table
-from resources.charts.weekly_stats_table import generate_weekly_stats_table
-from resources.charts.weekly_stats_rank_table import generate_weekly_stats_rank_table
+from resources.modules.matchup_table import generate_matchup_table
+from resources.modules.weekly_stats_table import generate_weekly_stats_table
+from resources.modules.weekly_stats_rank_table import generate_weekly_stats_rank_table
 
 
 def generate_week_page():

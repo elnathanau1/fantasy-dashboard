@@ -1,6 +1,6 @@
 from dash import html, dcc
-from resources.charts.trade_block import generate_trade_block_chart
-from resources.charts.weekly_power_ranking_chart import generate_weekly_power_ranking_chart
+from resources.modules.trade_block import generate_trade_block_chart
+from resources.modules.weekly_power_ranking_chart import generate_weekly_power_ranking_chart
 from resources.espn_fantasy_service import get_league_obj, get_trade_block
 from resources.constants import *
 from dash.dependencies import Input, Output

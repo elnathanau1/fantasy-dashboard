@@ -1,6 +1,5 @@
-from main_dash import app
-from resources.espn_fantasy_service import get_league_obj, get_team, get_player_stats
-from dash import html, dcc, dash_table
+from resources.espn_fantasy_service import get_team, get_player_stats
+from dash import dash_table
 from resources.constants import *
 from resources.util import get_color
 
