@@ -1,20 +1,17 @@
 from main_dash import app
-from resources.espn_fantasy_service import get_league_obj, get_team
+from resources.espn_fantasy_service import get_team
 from dash import html, dcc
 from dash.dependencies import Input, Output
 from resources.constants import *
+from resources.util import dropdown_teams_list
 from resources.modules.player_stats_table import generate_player_stats_table
 
 
 def generate_team_profile_page():
-    league_obj = get_league_obj()
     return html.Div([
         dcc.Dropdown(
             id=TEAM_SELECTION_DROPDOWN_ID,
-            options=list(map(lambda team_id: {
-                'label': get_team(team_id).team_name,
-                'value': str(team_id)
-            }, range(1, len(league_obj.teams) + 1))) + [{
+            options=dropdown_teams_list() + [{
                 'label': 'Free Agents',
                 'value': 'FREE AGENT'
             }],

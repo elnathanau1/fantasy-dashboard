@@ -1,4 +1,5 @@
 from colour import Color
+from resources.espn_fantasy_service import get_league_obj
 
 
 def get_color(val, max_val, min_val):
@@ -45,3 +46,28 @@ def get_colors_stat_tables(df):
         })
 
     return style
+
+
+def dropdown_teams_list():
+    league_obj = get_league_obj()
+    teams = league_obj.teams
+    return list(map(lambda team: {
+        'label': team.team_name,
+        'value': team.team_id
+    }, teams))
+
+
+def append_agg_stats_to_stats_table(stats_df):
+    new_row = {
+        'Name': 'Avg/Total Values'
+    }
+    # cats to sum
+    for cat in ['Value', 'pV', '3V', 'rV', 'aV', 'sV', 'bV', 'fg%V', 'ft%V', 'toV']:
+        new_row[cat] = round(stats_df.loc[:, cat].astype(float).sum(), 2)
+
+    for cat in ['m/g', 'p/g', '3/g', 'r/g', 'a/g', 's/g', 'b/g', 'to/g']:
+        new_row[cat] = round(stats_df.loc[:, cat].astype(float).mean(), 2)
+
+    final_df = stats_df.append(new_row, ignore_index=True)
+    return final_df
+
