@@ -3,6 +3,41 @@ RED = '#FF4136'
 GRAY = '#808080'
 CATEGORIES = ['TO', 'PTS', 'BLK', 'STL', 'AST', 'REB', '3PTM', 'FG%', 'FT%']
 
+NBA_ABBREVIATION_TO_NAME_MAP = {
+  'ATL': 'Atlanta Hawks',
+  'BOS': 'Boston Celtics',
+  'CHA': 'Charlotte Hornets',
+  'CHI': 'Chicago Bulls',
+  'CLE': 'Cleveland Cavaliers',
+  'DAL': 'Dallas Mavericks',
+  'DEN': 'Denver Nuggets',
+  'DET': 'Detroit Pistons',
+  'GSW': 'Golden State Warriors',
+  'HOU': 'Houston Rockets',
+  'IND': 'Indiana Pacers',
+  'LAC': 'Los Angeles Clippers',
+  'LAL': 'Los Angeles Lakers',
+  'MEM': 'Memphis Grizzlies',
+  'MIA': 'Miami Heat',
+  'MIL': 'Milwaukee Bucks',
+  'MIN': 'Minnesota Timberwolves',
+  'NOH': 'New Orleans Pelicans',
+  'NYK': 'New York Knicks',
+  'BKN': 'Brooklyn Nets',
+  'OKC': 'Oklahoma City Thunder',
+  'ORL': 'Orlando Magic',
+  'PHI': 'Philadelphia 76ers',
+  'PHO': 'Phoenix Suns',
+  'POR': 'Portland Trail Blazers',
+  'SAC': 'Sacramento Kings',
+  'SAS': 'San Antonio Spurs',
+  'TOR': 'Toronto Raptors',
+  'UTH': 'Utah Jazz',
+  'WAS': 'Washington Wizards',
+}
+
+NBA_NAME_TO_ABBREVIATION_MAP = {v: k for k, v in NBA_ABBREVIATION_TO_NAME_MAP.items()}
+
 
 MAIN_NAV_DROPDOWN = 'main_nav_dropdown'
 MAIN_NAV_OUTPUT_CONTAINER = 'main_nav_output_container'
