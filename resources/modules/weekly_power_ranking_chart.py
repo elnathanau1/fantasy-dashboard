@@ -1,4 +1,4 @@
-from resources.espn_fantasy_service import get_week_matchup_stats, get_league_obj
+from resources.services.espn_fantasy_service import get_week_matchup_stats, get_league_obj
 import plotly.express as px
 from dash import dcc
 import pandas as pd

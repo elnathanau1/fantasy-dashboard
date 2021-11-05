@@ -2,9 +2,9 @@ from espn_api.basketball import League, Team, Matchup
 import requests
 import os
 from cachetools import TTLCache
-import pandas as pd
 from pandas import DataFrame
-from bs4 import BeautifulSoup
+from resources.requests.basketballmonster_rankings import get_basketballmonster_rankings
+from resources.requests.hashtagbasketball_schedule import get_schedule
 
 from resources.secrets import *
 
@@ -15,16 +15,16 @@ league_id = os.environ['LEAGUE_ID'] if os.getenv("LEAGUE_ID") is not None else l
 CATEGORIES = ['TO', 'PTS', 'BLK', 'STL', 'AST', 'REB', '3PTM', 'FG%', 'FT%']
 PLAYER_MAP_URL = 'https://fantasy.espn.com/apis/v3/games/fba/seasons/2022/players?scoringPeriodId=0&view=players_wl'
 LEAGUE_INFO_URL = 'https://fantasy.espn.com/apis/v3/games/fba/seasons/{0}/segments/0/leagues/{1}?view=mRoster&view=mTeam'
-BASKETBALLMONSTER_RANKINGS = "https://basketballmonster.com/playerrankings.aspx"
 
-cache = TTLCache(maxsize=10, ttl=60*60)
+cache = TTLCache(maxsize=50, ttl=60*60)
 LEAGUE_OBJ_KEY = 'league_obj_key'
 LEAGUE_INFO_KEY = 'league_info_key'
 PLAYER_MAP_KEY = 'player_map_key'
 PLAYER_STATS_KEY = 'player_stats_key'
+WEEK_SCHEDULE_KEY = 'week_schedule_key'
 
 
-def get_league_obj():
+def get_league_obj() -> League:
     if LEAGUE_OBJ_KEY not in cache.keys():
         cache[LEAGUE_OBJ_KEY] = League(league_id, 2022, espn_s2, swid)
     return cache[LEAGUE_OBJ_KEY]
@@ -54,67 +54,15 @@ def get_player_map():
 
 def get_player_stats() -> DataFrame:
     if PLAYER_STATS_KEY not in cache.keys():
-        s = requests.Session()
-        # first call gets form session details, second call gets all players
-        r = s.post(BASKETBALLMONSTER_RANKINGS)
-        soup = BeautifulSoup(r.text, 'html.parser')
-
-        asp_net_hidden = soup.find('form', {'id': 'form1'})
-        form = {
-            'hiddenInputToUpdateATBuffer_CommonToolkitScripts': 1,
-            'TeamFilterControl': 0,
-            'StatDisplayType': 'PerGame',
-            'ValueDisplayType': 'PerGame',
-            'HomeAwayFilterControl': 'HA',
-            'DataSetControl': 120,
-            'PlayerFilterControl': 'AllPlayers'
-        }
-        for input in asp_net_hidden.find_all('input', {'type': 'hidden'}):
-            form[input['name']] = input.get('value') if input.get('value') is not None else ''
-
-        form['__EVENTTARGET'] = 'PlayerFilterControl'
-        form['PositionsFilterControl3'] = 'on'
-        form['PositionsFilterControl4'] = 'on'
-        form['PositionsFilterControl5'] = 'on'
-        form['PositionsFilterControl6'] = 'on'
-        form['PositionsFilterControl7'] = 'on'
-
-        r = s.post(BASKETBALLMONSTER_RANKINGS, data=form)
-        soup = BeautifulSoup(r.text, 'html.parser')
-
-        # get ranking table and turn into df
-        results_table = soup.find('div', {'class': 'results-table'}).find('table')
-        df = pd.read_html(results_table.prettify())[0]
-
-        # get ranking table and turn into df
-        results_table = soup.find('div', {'class': 'results-table'}).find('table')
-        df = pd.read_html(results_table.prettify())[0]
-
-        # remove header rows from df
-        header_rows = df[df['Round'] == 'Round'].index
-        df = df.drop(header_rows)
-
-        # add espn_player_id to df for ease of use
-        player_map = get_player_map()
-        df['espn_id'] = df.apply(lambda row: next(
-            (player['id'] for player in player_map if
-             normalize_name(row['Name']) == normalize_name(player['fullName'])),
-            'a'
-        ), axis=1)
-
-        # add ownership
-        league_info = get_league_info()
-        df['Fantasy Team'] = df.apply(lambda row: next(
-            ('{0} {1}'.format(team['location'], team['nickname']) \
-             for team in league_info['teams'] \
-             if row['espn_id'] in list(map(
-                lambda roster_entry: roster_entry['playerId'], team['roster']['entries']
-            ))),
-            'FREE AGENT'
-        ), axis=1)
-
-        cache[PLAYER_STATS_KEY] = df
+        cache[PLAYER_STATS_KEY] = get_basketballmonster_rankings()
     return cache[PLAYER_STATS_KEY]
+
+
+def get_week_schedule(week: int) -> DataFrame:
+    key = WEEK_SCHEDULE_KEY + str(week)
+    if key not in cache.keys():
+        cache[key] = get_schedule(week)
+    return cache[key]
 
 
 def normalize_name(name: str):
@@ -151,7 +99,10 @@ def get_matchup_cats(matchup_period: int, team_id: int):
 
     cat_dict = {}
     for category in CATEGORIES:
-        cat_dict[category] = cats[category]['score']
+        if cats is None:
+            cat_dict[category] = 0
+        else:
+            cat_dict[category] = cats[category]['score']
 
     return cat_dict
 

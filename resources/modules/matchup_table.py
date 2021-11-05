@@ -3,7 +3,7 @@ from dash import dash_table
 from main_dash import app
 from dash.dependencies import Input, Output, State
 from resources.constants import *
-from resources.espn_fantasy_service import get_week_matchup_stats
+from resources.services.espn_fantasy_service import get_week_matchup_stats
 from resources.util import get_colors_stat_tables
 
 DISPLAY_COLUMNS = ['Team', 'FG%', 'FT%', '3PTM', 'REB', 'AST', 'STL', 'BLK', 'TO', 'PTS']

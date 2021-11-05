@@ -1,6 +1,6 @@
 import pandas as pd
 from dash import dash_table
-from resources.espn_fantasy_service import get_player_info, get_player_headshot, get_team
+from resources.services.espn_fantasy_service import get_player_info, get_player_headshot, get_team
 
 
 def generate_trade_block_chart(trade_block):

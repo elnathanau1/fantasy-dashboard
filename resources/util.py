@@ -1,5 +1,5 @@
 from colour import Color
-from resources.espn_fantasy_service import get_league_obj
+from resources.services.espn_fantasy_service import get_league_obj
 
 
 def get_color(val, max_val, min_val):

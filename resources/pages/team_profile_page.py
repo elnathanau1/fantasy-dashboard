@@ -1,10 +1,11 @@
 from main_dash import app
-from resources.espn_fantasy_service import get_team
+from resources.services.espn_fantasy_service import get_team
 from dash import html, dcc
 from dash.dependencies import Input, Output
 from resources.constants import *
 from resources.util import dropdown_teams_list
 from resources.modules.player_stats_table import generate_player_stats_table
+from resources.modules.schedule_table import generate_schedule_table
 
 
 def generate_team_profile_page():
@@ -21,8 +22,7 @@ def generate_team_profile_page():
             id="loading-1",
             type="default",
             children=html.Div(id=TEAM_PAGE_CONTAINER)
-        ),
-        html.P('Data from basketballmonster.com')
+        )
     ])
 
 
@@ -33,9 +33,10 @@ def render_team_page_container(team_id):
         team_name = 'Free Agents'
     else:
         team_name = get_team(int(team_id)).team_name
-
     return [
         html.H1(children=team_name),
-        generate_player_stats_table(team_id)
+        generate_player_stats_table(team_id),
+        html.P('Data from basketballmonster.com'),
+        generate_schedule_table(team_id)
     ]
 
