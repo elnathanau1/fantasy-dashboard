@@ -1,4 +1,4 @@
-from resources.espn_fantasy_service import get_team, get_player_stats
+from resources.services.espn_fantasy_service import get_team, get_player_stats
 from dash import dash_table
 from resources.constants import *
 from resources.util import get_color, append_agg_stats_to_stats_table

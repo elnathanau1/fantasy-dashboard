@@ -3,6 +3,8 @@ RED = '#FF4136'
 GRAY = '#808080'
 CATEGORIES = ['TO', 'PTS', 'BLK', 'STL', 'AST', 'REB', '3PTM', 'FG%', 'FT%']
 
+DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+
 NBA_ABBREVIATION_TO_NAME_MAP = {
   'ATL': 'Atlanta Hawks',
   'BOS': 'Boston Celtics',
@@ -21,18 +23,18 @@ NBA_ABBREVIATION_TO_NAME_MAP = {
   'MIA': 'Miami Heat',
   'MIL': 'Milwaukee Bucks',
   'MIN': 'Minnesota Timberwolves',
-  'NOH': 'New Orleans Pelicans',
+  'NOP': 'New Orleans Pelicans',
   'NYK': 'New York Knicks',
   'BKN': 'Brooklyn Nets',
   'OKC': 'Oklahoma City Thunder',
   'ORL': 'Orlando Magic',
-  'PHI': 'Philadelphia 76ers',
+  'PHL': 'Philadelphia 76ers',
   'PHO': 'Phoenix Suns',
   'POR': 'Portland Trail Blazers',
   'SAC': 'Sacramento Kings',
   'SAS': 'San Antonio Spurs',
   'TOR': 'Toronto Raptors',
-  'UTH': 'Utah Jazz',
+  'UTA': 'Utah Jazz',
   'WAS': 'Washington Wizards',
 }
 
@@ -60,5 +62,7 @@ TEAM_PAGE_CONTAINER = 'team_page_container'
 
 WEEKLY_POWER_RANKING_CHART = 'weekly_power_ranking_chart'
 LEAGUE_HOME_PAGE_ID = 'league_home_page_id'
+
+WEEKLY_GAMES_PLAYED = 'weekly_games_played'
 
 FREE_AGENT_TABLE_SIZE = 20

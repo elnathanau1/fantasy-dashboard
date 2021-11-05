@@ -1,6 +1,6 @@
 from dash import html, dcc
 from resources.modules.trade_machine import generate_trade_machine
-from resources.espn_fantasy_service import get_league_obj, get_player_stats
+from resources.services.espn_fantasy_service import get_league_obj, get_player_stats
 from dash.dependencies import Input, Output
 from main_dash import app
 

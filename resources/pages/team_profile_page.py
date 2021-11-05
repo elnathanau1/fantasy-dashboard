@@ -1,5 +1,5 @@
 from main_dash import app
-from resources.espn_fantasy_service import get_team
+from resources.services.espn_fantasy_service import get_team
 from dash import html, dcc
 from dash.dependencies import Input, Output
 from resources.constants import *

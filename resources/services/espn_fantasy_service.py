@@ -99,7 +99,10 @@ def get_matchup_cats(matchup_period: int, team_id: int):
 
     cat_dict = {}
     for category in CATEGORIES:
-        cat_dict[category] = cats[category]['score']
+        if cats is None:
+            cat_dict[category] = 0
+        else:
+            cat_dict[category] = cats[category]['score']
 
     return cat_dict
 

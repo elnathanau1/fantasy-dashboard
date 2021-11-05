@@ -40,5 +40,6 @@ def get_schedule(week: int) -> DataFrame:
     df = df.drop(df[df['Team'] == 'Team'].index)
 
     df['Team'] = df['Team'].apply(lambda team: NBA_NAME_TO_ABBREVIATION_MAP[team])
+    df.set_index('Team', inplace=True)
 
     return df

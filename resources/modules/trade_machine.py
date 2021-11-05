@@ -1,4 +1,4 @@
-from resources.espn_fantasy_service import *
+from resources.services.espn_fantasy_service import *
 from dash import html, dcc
 from resources.util import dropdown_teams_list, get_color, append_agg_stats_to_stats_table
 from main_dash import app

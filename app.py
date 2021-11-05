@@ -3,7 +3,7 @@ from dash import dcc
 from dash import html
 from dash.dependencies import Input, Output
 
-from resources.espn_fantasy_service import get_league_obj
+from resources.services.espn_fantasy_service import get_league_obj
 from resources.pages.team_profile_page import generate_team_profile_page
 from resources.pages.week_page import generate_week_page
 from resources.pages.league_home_page import generate_league_home_page
