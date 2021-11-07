@@ -32,7 +32,6 @@ def get_schedule(week: int) -> DataFrame:
     soup = BeautifulSoup(r.text, 'html.parser')
 
     schedule_table = soup.find('div', {'class': 'table-responsive'}).find('table')
-
     # get schedule table and turn into df
     df = pd.read_html(schedule_table.prettify())[0]
     # remove header rows from df
