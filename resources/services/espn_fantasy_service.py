@@ -239,3 +239,21 @@ def get_trade_block():
                         'team_name': team['location'] + ' ' + team['nickname']
                     })
     return trade_block
+
+
+def get_team_player_positions(team_id):
+    team = get_team(team_id)
+    positions = {
+        'PG': 0,
+        'SG': 0,
+        'SF': 0,
+        'PF': 0,
+        'C': 0
+    }
+    for player in team.roster:
+        for pos in positions.keys():
+            if pos in player.eligibleSlots:
+                positions[pos] = positions[pos] + 1
+
+    return positions
+

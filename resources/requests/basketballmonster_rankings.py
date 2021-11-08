@@ -20,7 +20,14 @@ def get_basketballmonster_rankings() -> DataFrame:
         'ValueDisplayType': 'PerGame',
         'HomeAwayFilterControl': 'HA',
         'DataSetControl': 120,
-        'PlayerFilterControl': 'AllPlayers'
+        'PlayerFilterControl': 'AllPlayers',
+        'ShowOptionsControlCB': 'on',
+        'SHOWUsage': 'on',
+        'SHOWRounds': 'on',
+        'SHOWPuntColumns': 'on',
+        'SHOWInjuries': 'on',
+        'SHOWStats': 'on',
+        'RANKINGSBUTTON': 'Refresh'
     }
     for input in asp_net_hidden.find_all('input', {'type': 'hidden'}):
         form[input['name']] = input.get('value') if input.get('value') is not None else ''
