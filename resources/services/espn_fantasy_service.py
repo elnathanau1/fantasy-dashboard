@@ -30,6 +30,12 @@ def get_league_obj() -> League:
     return cache[LEAGUE_OBJ_KEY]
 
 
+def get_week_schedule(week: int) -> DataFrame:
+    if WEEK_SCHEDULE_KEY + str(week) not in cache.keys():
+        cache[WEEK_SCHEDULE_KEY + str(week)] = get_schedule(week)
+    return cache[WEEK_SCHEDULE_KEY + str(week)]
+
+
 def get_league_info():
     if LEAGUE_INFO_KEY not in cache.keys():
         url = LEAGUE_INFO_URL.format(
@@ -54,15 +60,33 @@ def get_player_map():
 
 def get_player_stats() -> DataFrame:
     if PLAYER_STATS_KEY not in cache.keys():
-        cache[PLAYER_STATS_KEY] = get_basketballmonster_rankings()
+        df = get_basketballmonster_rankings()
+
+        # remove header rows from df
+        header_rows = df[df['Round'] == 'Round'].index
+        df = df.drop(header_rows)
+
+        # add espn_player_id to df for ease of use
+        player_map = get_player_map()
+        df['espn_id'] = df.apply(lambda row: next(
+            (player['id'] for player in player_map if
+             normalize_name(row['Name']) == normalize_name(player['fullName'])),
+            'a'
+        ), axis=1)
+
+        # add ownership
+        league_info = get_league_info()
+        df['Fantasy Team'] = df.apply(lambda row: next(
+            ('{0} {1}'.format(team['location'], team['nickname']) \
+             for team in league_info['teams'] \
+             if row['espn_id'] in list(map(
+                lambda roster_entry: roster_entry['playerId'], team['roster']['entries']
+            ))),
+            'FREE AGENT'
+        ), axis=1)
+
+        cache[PLAYER_STATS_KEY] = df
     return cache[PLAYER_STATS_KEY]
-
-
-def get_week_schedule(week: int) -> DataFrame:
-    key = WEEK_SCHEDULE_KEY + str(week)
-    if key not in cache.keys():
-        cache[key] = get_schedule(week)
-    return cache[key]
 
 
 def normalize_name(name: str):

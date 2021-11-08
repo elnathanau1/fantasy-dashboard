@@ -36,7 +36,6 @@ def render_team_page_container(team_id):
     return [
         html.H1(children=team_name),
         generate_player_stats_table(team_id),
-        html.P('Data from basketballmonster.com'),
-        generate_schedule_table(team_id)
+        html.P('Data from basketballmonster.com')
     ]
 
