@@ -13,7 +13,6 @@ def get_schedule(week: int) -> DataFrame:
         'user-agent': 'Mozilla/5.0'
     })
     r = s.post(HASHTAG_SCHEDULE)
-    # print(s.cookies)
     soup = BeautifulSoup(r.text, 'html.parser')
     inputs = soup.find_all('input', {'type': 'submit', 'class': 'btn'})
 

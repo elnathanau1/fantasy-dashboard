@@ -16,7 +16,7 @@ CATEGORIES = ['TO', 'PTS', 'BLK', 'STL', 'AST', 'REB', '3PTM', 'FG%', 'FT%']
 PLAYER_MAP_URL = 'https://fantasy.espn.com/apis/v3/games/fba/seasons/2022/players?scoringPeriodId=0&view=players_wl'
 LEAGUE_INFO_URL = 'https://fantasy.espn.com/apis/v3/games/fba/seasons/{0}/segments/0/leagues/{1}?view=mRoster&view=mTeam'
 
-cache = TTLCache(maxsize=50, ttl=60*60)
+cache = TTLCache(maxsize=50, ttl=60 * 60)
 LEAGUE_OBJ_KEY = 'league_obj_key'
 LEAGUE_INFO_KEY = 'league_info_key'
 PLAYER_MAP_KEY = 'player_map_key'
@@ -61,10 +61,6 @@ def get_player_map():
 def get_player_stats() -> DataFrame:
     if PLAYER_STATS_KEY not in cache.keys():
         df = get_basketballmonster_rankings()
-
-        # remove header rows from df
-        header_rows = df[df['Round'] == 'Round'].index
-        df = df.drop(header_rows)
 
         # add espn_player_id to df for ease of use
         player_map = get_player_map()
@@ -256,4 +252,3 @@ def get_team_player_positions(team_id):
                 positions[pos] = positions[pos] + 1
 
     return positions
-

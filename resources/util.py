@@ -1,9 +1,13 @@
 from colour import Color
 from resources.services.espn_fantasy_service import get_league_obj
+import math
 
 
 def get_color(val, max_val, min_val):
     val = float(val)
+    if math.isnan(val):
+        return Color(rgb=(1,1,1)).get_hex_l()
+    
     avg = max_val / 2.0 + min_val / 2.0
     if max_val == avg:
         return Color(rgb=(1, 1, 1)).get_hex_l()
@@ -62,8 +66,9 @@ def append_agg_stats_to_stats_table(stats_df):
         'Name': 'Avg/Total Values'
     }
     # cats to sum
-    for cat in ['Value', 'pV', '3V', 'rV', 'aV', 'sV', 'bV', 'fg%V', 'ft%V', 'toV']:
-        new_row[cat] = round(stats_df.loc[:, cat].astype(float).sum(), 2)
+    for cat in ['Value', 'PuntV', 'LeagV', 'pV', '3V', 'rV', 'aV', 'sV', 'bV', 'fg%V', 'ft%V', 'toV']:
+        if cat in stats_df.columns:
+            new_row[cat] = round(stats_df.loc[:, cat].astype(float).sum(), 2)
 
     for cat in ['m/g', 'p/g', '3/g', 'r/g', 'a/g', 's/g', 'b/g', 'to/g']:
         new_row[cat] = round(stats_df.loc[:, cat].astype(float).mean(), 2)

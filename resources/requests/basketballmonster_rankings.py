@@ -21,29 +21,46 @@ def get_basketballmonster_rankings() -> DataFrame:
         'HomeAwayFilterControl': 'HA',
         'DataSetControl': 120,
         'PlayerFilterControl': 'AllPlayers',
-        'ShowOptionsControlCB': 'on',
-        'SHOWUsage': 'on',
-        'SHOWRounds': 'on',
-        'SHOWPuntColumns': 'on',
-        'SHOWInjuries': 'on',
-        'SHOWStats': 'on',
-        'RANKINGSBUTTON': 'Refresh'
+        '__SCROLLPOSITIONX': 0,
+        '__SCROLLPOSITIONY': 0,
+        'DateFilterControl': 'FullSeason'
+        # 'ShowOptionsControlCB': 'on',
+        # 'SHOWUsage': 'on',
+        # 'SHOWRounds': 'on',
+        # 'SHOWPuntColumns': 'on',
+        # 'SHOWInjuries': 'on',
+        # 'SHOWStats': 'on',
+        # 'RANKINGSBUTTON': 'Refresh'
     }
     for input in asp_net_hidden.find_all('input', {'type': 'hidden'}):
         form[input['name']] = input.get('value') if input.get('value') is not None else ''
 
-    form['__EVENTTARGET'] = 'PlayerFilterControl'
+    form['__EVENTTARGET'] = 'PuntCategoriesControl7'
+    form['__EVENTARGUMENT'] = ''
+    form['__LASTFOCUS'] = ''
+    form['ctl00$MasterNameTB'] = ''
     form['PositionsFilterControl3'] = 'on'
     form['PositionsFilterControl4'] = 'on'
     form['PositionsFilterControl5'] = 'on'
     form['PositionsFilterControl6'] = 'on'
     form['PositionsFilterControl7'] = 'on'
 
-    r = s.post(BASKETBALLMONSTER_RANKINGS, data=form)
+    form['PuntCategoriesControl7'] = 'on'
+
+    headers = {
+        'origin': 'https://basketballmonster.com',
+        'referer': 'https://basketballmonster.com/playerrankings.aspx'
+    }
+
+    r = s.post(BASKETBALLMONSTER_RANKINGS, data=form, headers=headers)
     soup = BeautifulSoup(r.text, 'html.parser')
 
     # get ranking table and turn into df
     results_table = soup.find('div', {'class': 'results-table'}).find('table')
     df = pd.read_html(results_table.prettify())[0]
+
+    # remove header rows from df
+    header_rows = df[df['Round'] == 'Round'].index
+    df = df.drop(header_rows)
 
     return df

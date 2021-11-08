@@ -40,6 +40,17 @@ NBA_ABBREVIATION_TO_NAME_MAP = {
 
 NBA_NAME_TO_ABBREVIATION_MAP = {v: k for k, v in NBA_ABBREVIATION_TO_NAME_MAP.items()}
 
+PUNT_ORIGINAL_WEIGHTS = {
+        'pV': 1,
+        '3V': 1,
+        'rV': 1,
+        'aV': 1,
+        'sV': 1,
+        'bV': 1,
+        'fg%V': 1,
+        'ft%V': 1,
+        'toV': 1
+    }
 
 MAIN_NAV_DROPDOWN = 'main_nav_dropdown'
 MAIN_NAV_OUTPUT_CONTAINER = 'main_nav_output_container'
