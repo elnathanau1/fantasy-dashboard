@@ -7,7 +7,7 @@ def get_color(val, max_val, min_val):
     val = float(val)
     if math.isnan(val):
         return Color(rgb=(1,1,1)).get_hex_l()
-    
+
     avg = max_val / 2.0 + min_val / 2.0
     if max_val == avg:
         return Color(rgb=(1, 1, 1)).get_hex_l()

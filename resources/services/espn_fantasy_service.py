@@ -5,6 +5,7 @@ from cachetools import TTLCache
 from pandas import DataFrame
 from resources.requests.basketballmonster_rankings import get_basketballmonster_rankings
 from resources.requests.hashtagbasketball_schedule import get_schedule
+from resources.requests.weakstreams_links import get_today_game_streams
 
 from resources.secrets import *
 
@@ -22,6 +23,7 @@ LEAGUE_INFO_KEY = 'league_info_key'
 PLAYER_MAP_KEY = 'player_map_key'
 PLAYER_STATS_KEY = 'player_stats_key'
 WEEK_SCHEDULE_KEY = 'week_schedule_key'
+TODAY_STREAMS_KEY = 'today_streams_key'
 
 
 def get_league_obj() -> League:
@@ -38,8 +40,7 @@ def get_week_schedule(week: int) -> DataFrame:
 
 def get_league_info():
     if LEAGUE_INFO_KEY not in cache.keys():
-        url = LEAGUE_INFO_URL.format(
-            2022, league_id)
+        url = LEAGUE_INFO_URL.format(2022, league_id)
         req = requests.get(
             url,
             headers={'cookie': 'espnAuth={{"swid":"{0}"}}; espn_s2={1};'.format(swid, espn_s2)}
@@ -83,6 +84,12 @@ def get_player_stats() -> DataFrame:
 
         cache[PLAYER_STATS_KEY] = df
     return cache[PLAYER_STATS_KEY]
+
+
+def get_today_streams() -> list:
+    if TODAY_STREAMS_KEY not in cache.keys():
+        cache[TODAY_STREAMS_KEY] = get_today_game_streams()
+    return cache[TODAY_STREAMS_KEY]
 
 
 def normalize_name(name: str):
