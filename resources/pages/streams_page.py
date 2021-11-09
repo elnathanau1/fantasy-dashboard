@@ -36,7 +36,9 @@ def render_team_page_container(stream_index):
                 'height': '75vh',
                 'width': '75vw'
             }
-        )
+        ),
+        html.P("If this stream is not loading, load this page using http instead of https."),
+        html.P("Working on a way to stream through a secure connection.")
     ]
 
 
