@@ -61,7 +61,7 @@ def get_today_game_streams() -> list:
         urls = [x for x in urls if x is not None]
         game_stream_list.append({
             'name': f"{game['teams'][0]} vs {game['teams'][1]} - {game['date']}",
-            'stream_url': urls[-1]
+            'stream_url': urls[-1].replace('http://', 'https://')
         })
 
     return game_stream_list
