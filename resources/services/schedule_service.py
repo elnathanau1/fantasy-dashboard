@@ -2,8 +2,9 @@ from resources.constants import *
 import pandas as pd
 from pandas import Series
 from resources.services.espn_fantasy_service import *
-from datetime import date
+from datetime import datetime
 import calendar
+import pytz
 
 
 # TODO: WEEK 18 MONDAY IS BROKEN
@@ -47,7 +48,7 @@ def get_estimated_total_games(team_id: int, week: int, exclude_out: bool = True,
 
 def get_current_week_remaining_games(team_id: int, exclude_out: bool = True, exclude_dtd: bool = False) -> int:
     total_team_week_games = join_schedule_team_tables(team_id, get_league_obj().currentMatchupPeriod, exclude_out, exclude_dtd)
-    today_day = calendar.day_name[date.today().weekday()]
+    today_day = calendar.day_name[datetime.now(pytz.timezone('US/Pacific')).weekday()]
 
     in_past = True
     for day in DAYS:

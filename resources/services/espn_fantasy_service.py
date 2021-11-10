@@ -5,7 +5,7 @@ from cachetools import TTLCache
 from pandas import DataFrame
 from resources.requests.basketballmonster_rankings import get_basketballmonster_rankings
 from resources.requests.hashtagbasketball_schedule import get_schedule
-from resources.requests.weakstreams_links import get_today_game_streams
+from resources.services.stream_service import get_today_game_streams
 
 from resources.secrets import *
 
