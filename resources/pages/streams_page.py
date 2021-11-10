@@ -28,14 +28,14 @@ def generate_streams_page():
               Input(STREAM_DROPDOWN_ID, 'value'))
 def render_team_page_container(stream_index):
     today_streams = get_today_streams()
-    button_list = list(map(
-        lambda stream: html.Button(
-            stream['src'],
-            id=f'{stream["src"]}_BUTTON',
-            value=stream['stream_url']
-        ),
-        today_streams[int(stream_index)]['streams']
-    ))
+    # button_list = list(map(
+    #     lambda stream: html.Button(
+    #         stream['src'],
+    #         id=f'{stream["src"]}_BUTTON',
+    #         value=stream['stream_url']
+    #     ),
+    #     today_streams[int(stream_index)]['streams']
+    # ))
 
     return [
         html.H2(today_streams[int(stream_index)]['name']),
@@ -48,26 +48,26 @@ def render_team_page_container(stream_index):
                 'width': '75vw'
             }
         ),
-        html.Div(button_list),
+        # html.Div(button_list),
         html.P("If this stream is not loading, load this page using http instead of https."),
         html.P("Working on a way to stream through a secure connection.")
     ]
 
 
-@app.callback(Output(STREAM_IFRAME_CONTAINER, 'src'),
-              Input('WEAKSTREAMS_BUTTON', 'n_clicks'),
-              Input('WEAKSTREAMS_BUTTON', 'value'),
-              Input('TECHOREELS_BUTTON', 'n_clicks'),
-              Input('TECHOREELS_BUTTON', 'value'),
-              Input(STREAM_IFRAME_CONTAINER, 'src'))
-def render_team_page_container(weakstream_click, weakstream_url, techoreels_click, techoreels_url, default_url):
-    changed_id = [p['prop_id'] for p in callback_context.triggered][0]
-    if 'WEAKSTREAMS_BUTTON' in changed_id:
-        return weakstream_url
-    elif 'TECHOREELS_BUTTON' in changed_id:
-        return techoreels_url
-    else:
-        return default_url
+# @app.callback(Output(STREAM_IFRAME_CONTAINER, 'src'),
+#               Input('WEAKSTREAMS_BUTTON', 'n_clicks'),
+#               Input('WEAKSTREAMS_BUTTON', 'value'),
+#               # Input('TECHOREELS - (ADS)_BUTTON', 'n_clicks'),
+#               # Input('TECHOREELS - (ADS)_BUTTON', 'value'),
+#               Input(STREAM_IFRAME_CONTAINER, 'src'))
+# def render_team_page_container(weakstream_click, weakstream_url, techoreels_click, techoreels_url, default_url):
+#     changed_id = [p['prop_id'] for p in callback_context.triggered][0]
+#     if 'WEAKSTREAMS_BUTTON' in changed_id:
+#         return weakstream_url
+#     elif 'TECHOREELS - (ADS)_BUTTON' in changed_id:
+#         return techoreels_url
+#     else:
+#         return default_url
 
 
 def dropdown_streams_list():

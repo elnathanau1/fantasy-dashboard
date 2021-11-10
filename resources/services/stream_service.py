@@ -11,7 +11,7 @@ fmt = '%B %d, %Y %-I:%M %p %Z'
 
 def get_today_game_streams() -> list:
     weakstreams_df = scrape_weakstreams_sitemap()
-    techoreels_df = scrape_techoreels_sitemap()
+    # techoreels_df = scrape_techoreels_sitemap()
 
     r = requests.get(
         'https://site.api.espn.com/apis/fantasy/v2/games/fba/games',
@@ -41,16 +41,6 @@ def get_today_game_streams() -> list:
 
         teams = list(map(lambda team: team.lower().replace(' ', '-'), game['teams']))
 
-        # add techoreels
-        result_df = techoreels_df[techoreels_df['game'].str.contains(teams[0]) & techoreels_df['game'].str.contains(teams[1])]
-        urls = list(map(lambda link: techoreels_src_link(link), result_df['url'].to_list()))
-        urls = [x for x in urls if x is not None]
-        if len(urls) > 0:
-            new_row['streams'].append({
-                'src': 'TECHOREELS',
-                'stream_url': urls[-1]
-            })
-
         # add weakstream
         result_df = weakstreams_df[
             weakstreams_df['loc'].str.contains(teams[0]) & weakstreams_df['loc'].str.contains(teams[1])]
@@ -63,6 +53,16 @@ def get_today_game_streams() -> list:
                 'stream_url': urls[-1]
             })
 
+        # add techoreels
+        # result_df = techoreels_df[techoreels_df['game'].str.contains(teams[0]) & techoreels_df['game'].str.contains(teams[1])]
+        # urls = list(map(lambda link: techoreels_src_link(link), result_df['url'].to_list()))
+        # urls = [x for x in urls if x is not None]
+        # if len(urls) > 0:
+        #     new_row['streams'].append({
+        #         'src': 'TECHOREELS - (ADS)',
+        #         'stream_url': urls[-1]
+        #     })
+        #
         if len(new_row['streams']) > 0:
             game_stream_list.append(new_row)
 
