@@ -43,9 +43,11 @@ def render_team_page_container(stream_index):
             id=STREAM_IFRAME_CONTAINER,
             src=today_streams[int(stream_index)]['streams'][0]['stream_url'],
             allow='fullscreen',
+            sandbox="allow-forms allow-scripts allow-same-origin allow-top-navigation",
             style={
                 'height': '75vh',
-                'width': '75vw'
+                'width': '75vw',
+                'border': 'none'
             }
         ),
         # html.Div(button_list),
