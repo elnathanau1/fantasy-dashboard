@@ -1,7 +1,8 @@
 from main_dash import app
 from resources.services.espn_fantasy_service import get_today_streams
 from dash import html, dcc, callback_context
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, ALL
+import json
 
 STREAM_CONTAINER = 'stream_container'
 STREAM_DROPDOWN_ID = 'stream_dropdown_id'
@@ -9,6 +10,7 @@ STREAM_IFRAME_CONTAINER = 'stream_iframe_container'
 STREAM_ORIGIN_BUTTON = 'stream_origin_button'
 GAME_SELECTION_CONTAINER_ID = 'game_selection_container_id'
 STREAMS_PAGE_ID = 'streams_page_id'
+STREAM_SOURCE_BUTTON_CONTAINER = 'stream_source_button_container'
 
 
 def generate_streams_page():
@@ -16,11 +18,13 @@ def generate_streams_page():
         dcc.Loading(
             id="loading-1",
             type="default",
+            fullscreen=True,
             children=html.Div(id=GAME_SELECTION_CONTAINER_ID)
         ),
         dcc.Loading(
             id="loading-1",
             type="default",
+            fullscreen=True,
             children=html.Div(id=STREAM_CONTAINER, style={'align': 'center'})
         )
     ])
@@ -30,14 +34,15 @@ def generate_streams_page():
               Input(STREAM_DROPDOWN_ID, 'value'))
 def render_team_page_container(stream_index):
     today_streams = get_today_streams()
-    # button_list = list(map(
-    #     lambda stream: html.Button(
-    #         stream['src'],
-    #         id=f'{stream["src"]}_BUTTON',
-    #         value=stream['stream_url']
-    #     ),
-    #     today_streams[int(stream_index)]['streams']
-    # ))
+    stream_list = today_streams[int(stream_index)]['streams']
+    button_list = []
+    for i in range(0, len(stream_list)):
+        button_list.append(html.Button(
+            stream_list[i]['name'],
+            id={'type': 'source_button', 'index': i},
+            type='source_button',
+            value=stream_list[i]['stream_url']
+        ))
 
     return [
         html.H2(today_streams[int(stream_index)]['name']),
@@ -52,26 +57,22 @@ def render_team_page_container(stream_index):
                 'border': 'none'
             }
         ),
-        # html.Div(button_list),
+        html.P('Sources:'),
+        html.Div(id=STREAM_SOURCE_BUTTON_CONTAINER, children=button_list),
         html.P("If this stream is not loading, load this page using http instead of https."),
         html.P("Working on a way to stream through a secure connection.")
     ]
 
 
-# @app.callback(Output(STREAM_IFRAME_CONTAINER, 'src'),
-#               Input('WEAKSTREAMS_BUTTON', 'n_clicks'),
-#               Input('WEAKSTREAMS_BUTTON', 'value'),
-#               Input('TECHOREELS - (ADS)_BUTTON', 'n_clicks'),
-#               Input('TECHOREELS - (ADS)_BUTTON', 'value'),
-#               Input(STREAM_IFRAME_CONTAINER, 'src'))
-# def render_team_page_container(weakstream_click, weakstream_url, techoreels_click, techoreels_url, default_url):
-#     changed_id = [p['prop_id'] for p in callback_context.triggered][0]
-#     if 'WEAKSTREAMS_BUTTON' in changed_id:
-#         return weakstream_url
-#     elif 'TECHOREELS - (ADS)_BUTTON' in changed_id:
-#         return techoreels_url
-#     else:
-#         return default_url
+@app.callback(Output(STREAM_IFRAME_CONTAINER, 'src'),
+              Input({'type': 'source_button', 'index': ALL}, 'n_clicks'),
+              Input({'type': 'source_button', 'index': ALL}, 'value'),
+              prevent_initial_call=True)
+def render_team_page_container(clicks, values):
+    changed_id = [p['prop_id'] for p in callback_context.triggered][0]
+    changed_id_json = json.loads(changed_id.replace('.n_clicks', ''))
+    index = changed_id_json['index']
+    return values[index]
 
 
 def dropdown_streams_list():
