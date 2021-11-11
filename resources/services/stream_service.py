@@ -42,40 +42,43 @@ def get_today_game_streams() -> list:
         }
 
         # add weakstream
-        teams = list(map(lambda team: team.lower().replace(' ', '-'), game['teams']))
-        result_df = weakstreams_df[
-            weakstreams_df['loc'].str.contains(teams[0]) & weakstreams_df['loc'].str.contains(teams[1])]
+        if weakstreams_df is not None:
+            teams = list(map(lambda team: team.lower().replace(' ', '-'), game['teams']))
+            result_df = weakstreams_df[
+                weakstreams_df['loc'].str.contains(teams[0]) & weakstreams_df['loc'].str.contains(teams[1])]
 
-        urls = list(map(lambda link: weakstream_src_link(link), result_df['loc'].to_list()))
-        urls = [x for x in urls if x is not None]
-        if len(urls) > 0:
-            new_row['streams'].append({
-                'name': 'WEAKSTREAMS',
-                'stream_url': urls[-1]
-            })
+            urls = list(map(lambda link: weakstream_src_link(link), result_df['loc'].to_list()))
+            urls = [x for x in urls if x is not None]
+            if len(urls) > 0:
+                new_row['streams'].append({
+                    'name': 'WEAKSTREAMS',
+                    'stream_url': urls[-1]
+                })
 
         # add techoreels
-        teams = list(map(lambda team: team.lower(), game['teams']))
-        result_df = techoreels_df[techoreels_df['game'].str.contains(teams[0]) | techoreels_df['game'].str.contains(teams[1])]
-        urls = list(map(lambda link: techoreels_src_link(link), result_df['url'].to_list()))
-        urls = [x for x in urls if x is not None]
-        if len(urls) > 0:
-            new_row['streams'].append({
-                'name': 'TECHOREELS',
-                'stream_url': urls[-1]
-            })
+        if techoreels_df is not None:
+            teams = list(map(lambda team: team.lower(), game['teams']))
+            result_df = techoreels_df[techoreels_df['game'].str.contains(teams[0]) | techoreels_df['game'].str.contains(teams[1])]
+            urls = list(map(lambda link: techoreels_src_link(link), result_df['url'].to_list()))
+            urls = [x for x in urls if x is not None]
+            if len(urls) > 0:
+                new_row['streams'].append({
+                    'name': 'TECHOREELS',
+                    'stream_url': urls[-1]
+                })
 
         # add givemenbastreams
-        teams = list(map(lambda team: team.lower(), game['teams']))
-        result_df = givemenbastreams_df[
-            givemenbastreams_df['game'].str.contains(teams[0]) | givemenbastreams_df['game'].str.contains(teams[1])]
-        urls = list(map(lambda link: givemenbastreams_src_link(link), result_df['url'].to_list()))
-        urls = [x for x in urls if x is not None]
-        if len(urls) > 0:
-            new_row['streams'].append({
-                'name': 'GIVEMENBASTREAMS',
-                'stream_url': urls[-1]
-            })
+        if givemenbastreams_df is not None:
+            teams = list(map(lambda team: team.lower(), game['teams']))
+            result_df = givemenbastreams_df[
+                givemenbastreams_df['game'].str.contains(teams[0]) | givemenbastreams_df['game'].str.contains(teams[1])]
+            urls = list(map(lambda link: givemenbastreams_src_link(link), result_df['url'].to_list()))
+            urls = [x for x in urls if x is not None]
+            if len(urls) > 0:
+                new_row['streams'].append({
+                    'name': 'GIVEMENBASTREAMS',
+                    'stream_url': urls[-1]
+                })
 
         if len(new_row['streams']) > 0:
             game_stream_list.append(new_row)

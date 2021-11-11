@@ -1,14 +1,8 @@
-from datetime import date
-from dateutil.parser import parse
-import pytz
 import pandas as pd
 from pandas import DataFrame
 from bs4 import BeautifulSoup
 import requests
 from typing import Optional
-
-est = pytz.timezone('US/Eastern')
-fmt = '%B %d, %Y %-I:%M %p %Z'
 
 
 def weakstream_src_link(weakstream_link: str) -> Optional[str]:
@@ -21,12 +15,15 @@ def weakstream_src_link(weakstream_link: str) -> Optional[str]:
     return iframe.find('iframe')['src']
 
 
-def scrape_weakstreams_sitemap() -> DataFrame:
-    r = requests.get('http://weakstreams.com/post-sitemap.xml')
-    soup = BeautifulSoup(r.text, 'xml')
-    df = pd.read_xml(soup.prettify())
-    df = df[df['loc'].str.contains("nba-stream")]
-    df = df.sort_values(by=['lastmod'])
-    df = df[['loc', 'lastmod']]
-    return df
+def scrape_weakstreams_sitemap() -> Optional[DataFrame]:
+    try:
+        r = requests.get('http://weakstreams.com/post-sitemap.xml')
+        soup = BeautifulSoup(r.text, 'xml')
+        df = pd.read_xml(soup.prettify())
+        df = df[df['loc'].str.contains("nba-stream")]
+        df = df.sort_values(by=['lastmod'])
+        df = df[['loc', 'lastmod']]
+        return df
+    except:
+        return None
 
