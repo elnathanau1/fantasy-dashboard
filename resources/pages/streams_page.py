@@ -1,8 +1,10 @@
 from main_dash import app
-from resources.services.espn_fantasy_service import get_today_streams
+from resources.services.espn_fantasy_service import get_today_streams, get_player_info, get_player_headshot
 from dash import html, dcc, callback_context
 from dash.dependencies import Input, Output, ALL
 import json
+from resources.services.stream_service import get_live_games
+from resources.page_css import streams_css as css
 
 STREAM_CONTAINER = 'stream_container'
 STREAM_DROPDOWN_ID = 'stream_dropdown_id'
@@ -11,6 +13,8 @@ STREAM_ORIGIN_BUTTON = 'stream_origin_button'
 GAME_SELECTION_CONTAINER_ID = 'game_selection_container_id'
 STREAMS_PAGE_ID = 'streams_page_id'
 STREAM_SOURCE_BUTTON_CONTAINER = 'stream_source_button_container'
+
+STREAM_DELAY = 90  # seconds
 
 
 def generate_streams_page():
@@ -21,12 +25,13 @@ def generate_streams_page():
             fullscreen=True,
             children=html.Div(id=GAME_SELECTION_CONTAINER_ID)
         ),
-        dcc.Loading(
-            id="loading-1",
-            type="default",
-            fullscreen=True,
-            children=html.Div(id=STREAM_CONTAINER, style={'align': 'center'})
-        )
+        html.Div(id=STREAM_CONTAINER, style={'align': 'center'})
+        # dcc.Loading(
+        #     id="loading-1",
+        #     type="default",
+        #     # fullscreen=True,
+        #     children=html.Div(id=STREAM_CONTAINER, style={'align': 'center'})
+        # )
     ])
 
 
@@ -45,23 +50,93 @@ def render_team_page_container(stream_index):
         ))
 
     return [
-        html.H2(today_streams[int(stream_index)]['name']),
-        html.Iframe(
-            id=STREAM_IFRAME_CONTAINER,
-            src=today_streams[int(stream_index)]['streams'][0]['stream_url'],
-            allow='fullscreen',
-            sandbox="allow-forms allow-scripts allow-same-origin allow-top-navigation",
-            style={
-                'height': '75vh',
-                'width': '75vw',
-                'border': 'none'
-            }
+        html.Div(
+            children=[
+                html.Div(
+                    children=[
+                        html.H2(today_streams[int(stream_index)]['name']),
+                        html.Iframe(
+                            id=STREAM_IFRAME_CONTAINER,
+                            src=today_streams[int(stream_index)]['streams'][0]['stream_url'],
+                            allow='fullscreen',
+                            sandbox="allow-forms allow-scripts allow-same-origin allow-top-navigation",
+                            style=css.STREAM_IFRAME_STYLE
+                        ),
+                        html.P('Sources:'),
+                        html.Div(
+                            id=STREAM_SOURCE_BUTTON_CONTAINER,
+                            children=[
+                                html.Div(children=button_list),
+                                html.P(
+                                    "If this stream is not loading, load this page using http instead of https."),
+                                html.P("Working on a way to stream through a secure connection.")
+                            ]
+                        )
+                    ]
+                ),
+                html.Div(id='live-update-text', style=css.STREAM_RECENT_PLAYS_STYLE)
+            ],
+            style=css.STREAM_GRID_STYLE
         ),
-        html.P('Sources:'),
-        html.Div(id=STREAM_SOURCE_BUTTON_CONTAINER, children=button_list),
-        html.P("If this stream is not loading, load this page using http instead of https."),
-        html.P("Working on a way to stream through a secure connection.")
+
+        dcc.Interval(
+            id='interval-component',
+            interval=2 * 1000,  # in milliseconds
+            n_intervals=0
+        )
+
+        # dcc.Loading(
+        #     id="loading-1",
+        #     type="default",
+        #     # fullscreen=True,
+        #     children=html.Div(id='live-update-text')
+        # )
+
     ]
+
+
+@app.callback(Output('live-update-text', 'children'),
+              Input('interval-component', 'n_intervals'),
+              Input(STREAM_DROPDOWN_ID, 'value'))
+def update_metrics(n, stream_index):
+    live_games = get_live_games()
+    target_game = live_games[int(stream_index)]
+    return_list = [
+        html.H2("Active Players:")
+    ]
+    for i in range(0, 2):
+        return_list.append(html.H3(target_game['teams'][i]))
+        lineup_div_children = []
+        for player in target_game['active_lineup'][i]:
+            lineup_div_children.append(
+                dcc.Markdown(
+                    # f'![]({get_player_headshot(player["id"])}){get_player_info(player["id"])["fullName"]} - {player["position"]}',
+                    f'{get_player_info(player["id"])["fullName"]} - {player["position"]}',
+                    # style=css.PLAYER_BOX_STYLE
+                )
+            )
+        return_list.append(
+            html.Div(children=lineup_div_children)
+        )
+    return_list.append(html.H2("Play by Play:"))
+    return_list = return_list + list(map(
+            lambda play: html.P(
+                f"{clock_to_str(play['period'], play['clock'])} - {play['text']}",
+                style=css.RECENT_PLAY_BOX_STYLE
+            ),
+            target_game['recent_plays']
+        ))
+
+    return html.Div(
+        children=return_list
+    )
+
+
+def clock_to_str(period, clock):
+    quarter = f'Q{period}' if period <= 4 else f'{period - 4}OT'
+    _, remainder = divmod(clock, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    return '{} {:02}:{:02}'.format(quarter, int(minutes), int(seconds))
 
 
 @app.callback(Output(STREAM_IFRAME_CONTAINER, 'src'),
@@ -94,4 +169,3 @@ def generate_game_selector(value):
         options=dropdown_streams_list(),
         value='0'
     )
-
