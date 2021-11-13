@@ -1,10 +1,12 @@
 from main_dash import app
 from resources.services.espn_fantasy_service import get_today_streams, get_player_info, get_player_headshot
 from dash import html, dcc, callback_context
-from dash.dependencies import Input, Output, ALL
+from dash.dependencies import Input, Output, ALL, State
 import json
 from resources.services.stream_service import get_live_games
 from resources.page_css import streams_css as css
+import time
+from collections import deque
 
 STREAM_CONTAINER = 'stream_container'
 STREAM_DROPDOWN_ID = 'stream_dropdown_id'
@@ -13,12 +15,17 @@ STREAM_ORIGIN_BUTTON = 'stream_origin_button'
 GAME_SELECTION_CONTAINER_ID = 'game_selection_container_id'
 STREAMS_PAGE_ID = 'streams_page_id'
 STREAM_SOURCE_BUTTON_CONTAINER = 'stream_source_button_container'
+STORE_GAME_INFO = 'store_game_info'
+PULL_GAME_INFO_INTERVAL = 'pull_game_info_interval'
 
-STREAM_DELAY = 90  # seconds
+STREAM_DELAY = 60  # seconds
+PULL_INTERVAL_SECONDS = 2
+MAX_STORE_SIZE = int(STREAM_DELAY / PULL_INTERVAL_SECONDS) + 50
 
 
 def generate_streams_page():
     return html.Div(id=STREAMS_PAGE_ID, children=[
+        dcc.Store(id=STORE_GAME_INFO, data=[]),
         dcc.Loading(
             id="loading-1",
             type="default",
@@ -26,12 +33,6 @@ def generate_streams_page():
             children=html.Div(id=GAME_SELECTION_CONTAINER_ID)
         ),
         html.Div(id=STREAM_CONTAINER, style={'align': 'center'})
-        # dcc.Loading(
-        #     id="loading-1",
-        #     type="default",
-        #     # fullscreen=True,
-        #     children=html.Div(id=STREAM_CONTAINER, style={'align': 'center'})
-        # )
     ])
 
 
@@ -78,28 +79,42 @@ def render_team_page_container(stream_index):
             ],
             style=css.STREAM_GRID_STYLE
         ),
-
         dcc.Interval(
-            id='interval-component',
-            interval=2 * 1000,  # in milliseconds
+            id=PULL_GAME_INFO_INTERVAL,
+            interval=PULL_INTERVAL_SECONDS * 1000,  # in milliseconds
             n_intervals=0
         )
-
-        # dcc.Loading(
-        #     id="loading-1",
-        #     type="default",
-        #     # fullscreen=True,
-        #     children=html.Div(id='live-update-text')
-        # )
-
     ]
 
 
-@app.callback(Output('live-update-text', 'children'),
-              Input('interval-component', 'n_intervals'),
-              Input(STREAM_DROPDOWN_ID, 'value'))
-def update_metrics(n, stream_index):
+@app.callback([Output('live-update-text', 'children'), Output(STORE_GAME_INFO, 'data')],
+              Input(PULL_GAME_INFO_INTERVAL, 'n_intervals'),
+              Input(STREAM_DROPDOWN_ID, 'value'),
+              State(STORE_GAME_INFO, 'data'))
+def update_metrics(n, stream_index, data):
+    if data is None:
+        return html.P("Waiting for stream to catch up to API"), list(q)
+    else:
+        q = deque(data, MAX_STORE_SIZE)
     live_games = get_live_games()
+    timestamp = time.time()
+    q.append({
+        'games': live_games,
+        'timestamp': timestamp
+    })
+
+    found = None
+    while len(q) > 0 and timestamp - STREAM_DELAY > q[0]['timestamp']:
+        if len(q) > 1 and timestamp - STREAM_DELAY > q[1]['timestamp']:
+            found = q.popleft()['games']
+        else:
+            found = q[0]['games']
+            break
+
+    if found is None:
+        return html.P("Waiting for stream to catch up to API"), list(q)
+
+    live_games = found
     target_game = live_games[int(stream_index)]
     return_list = [
         html.H2("Active Players:")
@@ -120,16 +135,16 @@ def update_metrics(n, stream_index):
         )
     return_list.append(html.H2("Play by Play:"))
     return_list = return_list + list(map(
-            lambda play: html.P(
-                f"{clock_to_str(play['period'], play['clock'])} - {play['text']}",
-                style=css.RECENT_PLAY_BOX_STYLE
-            ),
-            target_game['recent_plays']
-        ))
+        lambda play: html.P(
+            f"{clock_to_str(play['period'], play['clock'])} - {play['text']}",
+            style=css.RECENT_PLAY_BOX_STYLE
+        ),
+        target_game['recent_plays']
+    ))
 
     return html.Div(
         children=return_list
-    )
+    ), list(q)
 
 
 def clock_to_str(period, clock):
