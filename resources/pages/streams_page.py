@@ -18,7 +18,7 @@ STREAM_SOURCE_BUTTON_CONTAINER = 'stream_source_button_container'
 STORE_GAME_INFO = 'store_game_info'
 PULL_GAME_INFO_INTERVAL = 'pull_game_info_interval'
 
-STREAM_DELAY = 60  # seconds
+STREAM_DELAY = 75  # seconds
 PULL_INTERVAL_SECONDS = 2
 MAX_STORE_SIZE = int(STREAM_DELAY / PULL_INTERVAL_SECONDS) + 50
 
@@ -126,7 +126,9 @@ def update_metrics(n, stream_index, data):
             lineup_div_children.append(
                 dcc.Markdown(
                     # f'![]({get_player_headshot(player["id"])}){get_player_info(player["id"])["fullName"]} - {player["position"]}',
-                    f'{get_player_info(player["id"])["fullName"]} - {player["position"]}',
+                    f'{get_player_info(player["id"])["fullName"]} - {player["position"]} - {player["stats"]["PTS"]} PTS, ' +
+                    f' {player["stats"]["3PM"]} 3PM, {player["stats"]["REB"]} REB, ' +
+                    f'{player["stats"]["AST"]} AST, {player["stats"]["STL"]} STL, {player["stats"]["BLK"]} BLK'
                     # style=css.PLAYER_BOX_STYLE
                 )
             )

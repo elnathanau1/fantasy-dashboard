@@ -18,6 +18,32 @@ POSITION_MAP = {
 }
 
 
+def get_stats(games_json, player_id) -> dict:
+    player = [x for x in games_json['statistics'] if x['id'] == player_id]
+    if len(player) == 0:
+        return {
+        'PTS': 0,
+        '3PM': 0,
+        'FGM': 0,
+        'FGA': 0,
+        'REB': 0,
+        'AST': 0,
+        'STL': 0,
+        'BLK': 0
+    }
+    stats = player[0]['stats']
+    return {
+        'PTS': stats["0"],
+        '3PM': stats["33"],
+        'FGM': stats["13"],
+        'FGA': stats["14"],
+        'REB': stats["30"],
+        'AST': stats["3"],
+        'STL': stats["31"], # or 5
+        'BLK': stats["27"]
+    }
+
+
 def get_live_games():
     r = requests.get(
         'https://site.api.espn.com/apis/fantasy/v2/games/fba/games',
@@ -38,7 +64,8 @@ def get_live_games():
                 lambda team: list(map(
                     lambda player: {
                         'id': player['playerId'],
-                        'position': POSITION_MAP[player['positionId']]
+                        'position': POSITION_MAP[player['positionId']],
+                        'stats': get_stats(games_json, player['playerId'])
                     },
                     team['active']
                 )), game['competitors']
