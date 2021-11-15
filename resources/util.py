@@ -62,17 +62,20 @@ def dropdown_teams_list():
 
 
 def append_agg_stats_to_stats_table(stats_df):
-    new_row = {
-        'Name': 'Avg/Total Values'
-    }
+    stats_df = stats_df.reset_index(drop=True)
+    new_row = {'Name': 'Avg/Total Values'}
+    new_row_10 = {'Name': 'Avg/Total Top 10 Players'}
     # cats to sum
     for cat in ['Value', 'PuntV', 'LeagV', 'pV', '3V', 'rV', 'aV', 'sV', 'bV', 'fg%V', 'ft%V', 'toV']:
         if cat in stats_df.columns:
             new_row[cat] = round(stats_df.loc[:, cat].astype(float).sum(), 2)
+            new_row_10[cat] = round(stats_df.loc[0:9, cat].astype(float).sum(), 2)
 
     for cat in ['m/g', 'p/g', '3/g', 'r/g', 'a/g', 's/g', 'b/g', 'to/g']:
         new_row[cat] = round(stats_df.loc[:, cat].astype(float).mean(), 2)
+        new_row_10[cat] = round(stats_df.loc[0:9, cat].astype(float).mean(), 2)
 
     final_df = stats_df.append(new_row, ignore_index=True)
+    final_df = final_df.append(new_row_10, ignore_index=True)
     return final_df
 
